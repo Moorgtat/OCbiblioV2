@@ -1,4 +1,7 @@
-# Projet 10 : OcBiblio
+# Projet 10 : Amèliorer OcBiblio
+ Une version amélioré du projet Ocbiblio avec de nouvelles 
+features, correction d'un bug et mis en place de test.
+https://github.com/Moorgtat/OCbiblioV2.git
 
 # Features
 * Site Web Responsive 
