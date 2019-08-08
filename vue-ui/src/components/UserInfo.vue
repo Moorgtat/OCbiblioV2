@@ -5,6 +5,7 @@
       Tu peux prolonger un emprunt une fois si tu n'as pas fini ta lecture. <br>
       N'oublie pas de rendre le livre que tu as emprunté en temps et en heure!</p>
       <md-button @click="listLoan(user.pseudo)">Afficher mes emprunts en cours</md-button>
+      <md-button>Afficher mes réservations</md-button>
       <md-button @click="listPastLoan(user.pseudo)">Afficher mes messages</md-button>
       <div id="tableLoanContainer" v-if="clicked">
         <md-table id="tableLoan">
@@ -21,7 +22,9 @@
               <md-button v-if="loan.authProlong == true" @click="PatchLoan(loan.id)">Prolonger</md-button>
               <md-button v-if="loan.authProlong == false" class="md-accent" disabled>Prolonger</md-button>
             </md-table-cell>
-            <md-table-cell><md-button @click="DeleteLoan(loan.id)">Rendre</md-button></md-table-cell>
+            <md-table-cell>
+              <md-button @click="DeleteLoan(loan.id); plusOne(loan.nomLivre)">Rendre</md-button>
+            </md-table-cell>
           </md-table-row>
         </md-table>
       </div>
@@ -55,7 +58,7 @@ export default {name: 'UserInfo',
     }
   },
   methods: {
-    /* eslint-disable no-console */
+    /* eslint-disable */
     listLoan (pseudo) {
       this.rendre = false
       this.prolonger = false
@@ -104,7 +107,15 @@ export default {name: 'UserInfo',
         }, (response) => {
           console.log('erreur', response)
         })
-    }
+    },
+      plusOne (titre) {
+          axios.patch('http://localhost:8282/book-service/bookPlusOne/?titre=' + titre)
+              .then(response => {
+                  console.log('succes', response)
+              }, (response) => {
+                  console.log('erreur', response)
+              })
+      }
   }
 }
 

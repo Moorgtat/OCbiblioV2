@@ -3,7 +3,7 @@
     <h2>Je cherche un livre</h2>
      <p>Tous nos livres sont disponible ici {{user.pseudo}}! Clique sur chercher<br>
        pour tous les afficher ou lance une recherche par Titre et par Auteur. <br>
-       Tu peux emprunter jusque 5 livres en cliquant sur Emprunter.</p>
+       Tu peux emprunter jusque 3 livres en cliquant sur Emprunter.</p>
     <div class="md-content" id="form-content">
       <form id="form-search-books" class="form-group label-floating">
         <div class="md-input-container">
@@ -27,14 +27,20 @@
             <img :src='book.image' alt="couverture du livre">
           </md-card-media>
           <md-card-header>
+            <div class="md-subhead">Quantité restante :{{book.quantite}}</div>
             <div class="md-title">{{book.titre}}</div>
             <div class="md-subhead">{{book.auteur}}</div>
           </md-card-header>
           <md-card-expand>
             <md-card-actions md-alignment="space-between">
               <div>
-                <md-button v-if="intcountloans <= 4" href="#find" @click="createLoan(book.titre)">Emprunter</md-button>
-                <md-button v-if="intcountloans == 5" class="md-accent" disabled>Emprunter</md-button>
+                <md-button v-if="intcountloans <= 2 && book.quantite >= 1" href="#find" @click="createLoan(book.titre); minorOne(book.id)">
+                  Emprunter
+                </md-button>
+                <md-button v-if="intcountloans == 3 && book.quantite >= 1" class="md-accent" disabled>Emprunter</md-button>
+              </div>
+              <div  v-if="book.quantite == 0">
+                <md-button>Réserver</md-button>
               </div>
               <md-card-expand-trigger>
                 <md-button>Description</md-button>
@@ -72,7 +78,7 @@ export default {
     }
   },
   methods: {
-    /* eslint-disable no-console */
+    /* eslint-disable */
     searchbooks () {
       this.loaned = false
       this.searched = false
@@ -103,7 +109,15 @@ export default {
         }, (response) => {
           console.log('erreur', response)
         })
-    }
+    },
+      minorOne (id) {
+          axios.patch('http://localhost:8282/book-service/bookMinorOne/?id=' + id)
+              .then(response => {
+                  console.log('succes', response)
+              }, (response) => {
+                  console.log('erreur', response)
+              })
+      },
   }
 }
 </script>
