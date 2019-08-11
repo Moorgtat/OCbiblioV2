@@ -1,4 +1,4 @@
-package org.ocbiblio.loanservice;
+package org.ocbiblio.reservationservice;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -7,10 +7,10 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 @EnableDiscoveryClient
 @SpringBootApplication
-public class LoanServiceApplication implements CommandLineRunner {
+public class ReservationServiceApplication implements CommandLineRunner{
 
     public static void main(String[] args) {
-        SpringApplication.run(LoanServiceApplication.class, args);
+        SpringApplication.run(ReservationServiceApplication.class, args);
     }
 
     @Override
@@ -18,4 +18,3 @@ public class LoanServiceApplication implements CommandLineRunner {
 
     }
 }
-
