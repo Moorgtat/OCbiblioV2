@@ -1,6 +1,7 @@
 # Projet 10 : Amèliorer OcBiblio
  Une version amélioré du projet Ocbiblio avec de nouvelles 
-features, correction d'un bug et mis en place de test.
+features, correction d'un bug et mis en place de test, le tout 
+intégré selon une logique d'<<issue>> vis GitHub.
 https://github.com/Moorgtat/OCbiblioV2.git
 
 # Features
