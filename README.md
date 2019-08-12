@@ -12,6 +12,7 @@ https://github.com/Moorgtat/OCbiblioV2.git
 * Gestion de Prêt de Livre
 * Limite de Prêt de livre
 * Limite de Prolongation de Prêt
+* Gestion de réservation
 * Simulation Remise Livres
  
 # Technologies utilisées
