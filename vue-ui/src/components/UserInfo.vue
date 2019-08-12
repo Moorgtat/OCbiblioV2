@@ -19,6 +19,7 @@
             <md-table-cell>{{loan.nomLivre}}</md-table-cell>
             <md-table-cell>{{loan.finPret}}</md-table-cell>
             <md-table-cell>
+              <!--Ticket #2 regles de gestion coté FRONT-->
               <md-button v-if="loan.authProlong == true" @click="PatchLoan(loan.id)">Prolonger</md-button>
               <md-button v-if="loan.authProlong == false" class="md-accent" disabled>Prolonger</md-button>
             </md-table-cell>

@@ -52,10 +52,17 @@ public class LoanRestController {
     @PostMapping("/PatchLoan/")
     public Loan loan(@RequestParam(name = "id", defaultValue = "") long id) {
         Loan loan = loanRepository.getOne(id);
-        long addTime = loan.getFinPret().getTime() + 5 * 24 * 60 * 60 * 1000;
-        Date ProlPret = new Date(addTime);
-        loan.setFinPret(ProlPret);
-        loan.setAuthProlong(false);
+        // ticket #2 regle de gestion coté BACK
+        if(loan.getAuthProlong() == true){
+            long addTime = loan.getFinPret().getTime() + 5 * 24 * 60 * 60 * 1000;
+            Date ProlPret = new Date(addTime);
+            loan.setFinPret(ProlPret);
+            loan.setAuthProlong(false);
+            loan.setAuthProlong(false);}
+        else
+        {
+            System.out.println("L'utilisateur ne peux pas prolonger le prêt plus d'une fois.");
+        }
         return loanRepository.save(loan);
     }
 
