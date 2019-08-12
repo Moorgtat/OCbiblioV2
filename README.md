@@ -14,7 +14,7 @@ https://github.com/Moorgtat/OCbiblioV2.git
 * Simulation Remise Livres
  
 # Technologies utilisées
-Architecture MICROSERVICE. Projet basé autour de l'écosystème 
+ Architecture MICROSERVICE. Projet basé autour de l'écosystème 
 SPRING avec une UI développée sous le framework Javascript 
 Vue.JS.
 
