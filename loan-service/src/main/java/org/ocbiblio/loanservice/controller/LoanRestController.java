@@ -37,6 +37,11 @@ public class LoanRestController {
         Date duJour = new Date();
         return loanRepository.findAllByPseudoEmprunteurAndFinPretIsBefore(pseudo, duJour);
     }
+    @RequestMapping("/ListeLoanByTitreAndUser/")
+    public List<Loan> ListLoanTitreUser (@RequestParam(name = "pseudo", defaultValue = "") String pseudo,
+                                        @RequestParam(name = "NomLivre", defaultValue = "")String NomLivre){
+        return loanRepository.findAllByPseudoEmprunteurAndNomLivre(pseudo, NomLivre);
+    }
 
     @PostMapping("/createLoan/")
     public Loan loan(@RequestParam(name = "pseudoEmprunteur", defaultValue = "") String pseudoEmprunteur,

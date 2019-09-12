@@ -1,11 +1,10 @@
 package org.ocbiblio.reservationservice.entities;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import java.util.Date;
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import javax.persistence.*;
+import javax.validation.constraints.Size;
+import java.util.Collection;
 
 @Entity
 public class Reservation {
@@ -13,4 +12,61 @@ public class Reservation {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private long id;
+    @Column(unique=true)
+    @Size(min = 1, max = 50)
+    private String nomLivre;
+    @JsonIgnore
+    @OneToMany(mappedBy="reservation", fetch=FetchType.LAZY)
+    private Collection<uReservation> fileReservation;
+    private Boolean isFileResEmpty;
+    private int BQtMax;
+
+    public Reservation() {
+    }
+
+    public Reservation(@Size(min = 1, max = 50) String nomLivre, Boolean isFileResEmpty, int BQtMax) {
+        this.nomLivre = nomLivre;
+        this.isFileResEmpty = isFileResEmpty;
+        this.BQtMax = BQtMax;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public String getNomLivre() {
+        return nomLivre;
+    }
+
+    public void setNomLivre(String nomLivre) {
+        this.nomLivre = nomLivre;
+    }
+
+    public Collection<uReservation> getFileReservation() {
+        return fileReservation;
+    }
+
+    public void setFileReservation(Collection<uReservation> fileReservation) {
+        this.fileReservation = fileReservation;
+    }
+
+    public Boolean getFileResEmpty() {
+        return isFileResEmpty;
+    }
+
+    public void setFileResEmpty(Boolean fileResEmpty) {
+        isFileResEmpty = fileResEmpty;
+    }
+
+    public int getBQtMax() {
+        return BQtMax;
+    }
+
+    public void setBQtMax(int BQtMax) {
+        this.BQtMax = BQtMax;
+    }
 }

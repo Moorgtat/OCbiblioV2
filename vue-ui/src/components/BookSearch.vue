@@ -16,12 +16,12 @@
             <md-input id="auteur" name="auteur" type="text" v-model="auteur"></md-input>
           </md-field>
         </div>
-        <md-button class="md-raised md-default" @click="searchbooks(); countLoans(user.pseudo);">Chercher</md-button>
+        <md-button class="md-raised md-default" @click="searchbooks(), countLoans(user.pseudo), countuRes(user.pseudo)">Chercher</md-button>
       </form>
     </div>
 
     <div id="global-container">
-      <div v-if="searched" class="md-content" id="booksContainer">
+      <div v-if="afficheur == 'afficherLivres'" class="md-content" id="booksContainer">
         <md-card id="card-expanse" v-for="book in ListBooks" :key="book.id">
           <md-card-media>
             <img :src='book.image' alt="couverture du livre">
@@ -34,13 +34,14 @@
           <md-card-expand>
             <md-card-actions md-alignment="space-between">
               <div>
-                <md-button v-if="intcountloans <= 2 && book.quantite >= 1" href="#find" @click="createLoan(book.titre); minorOne(book.id)">
+                <md-button v-if="intcountloans <= 2 && book.quantite >= 1" href="#find" @click="gestionEmprunt(book.titre, user.pseudo, book.quantite)">
                   Emprunter
                 </md-button>
-                <md-button v-if="intcountloans == 3 && book.quantite >= 1" class="md-accent" disabled>Emprunter</md-button>
+                <md-button v-if="intcountloans === 3 && book.quantite >= 1" class="md-accent" disabled>Emprunter</md-button>
               </div>
               <div  v-if="book.quantite == 0">
-                <md-button>Réserver</md-button>
+                <md-button v-if="intcountuRes <= 2" href="#find" @click="gestionReservation(book.titre, user.pseudo, book.quantite, book.quantiteMax)">Réserver</md-button>
+                <md-button v-if="intcountuRes === 3" class="md-accent" disabled>Reserver</md-button>
               </div>
               <md-card-expand-trigger>
                 <md-button>Description</md-button>
@@ -54,8 +55,50 @@
           </md-card-expand>
         </md-card>
       </div>
-      <div v-if="loaned">
+      <div v-if="afficheur == 'unEmpruntParLivre'">
+      <p>Vous n'avez le droit qu'à un emprunt par livre.</p>
+      </div>
+      <div v-if="afficheur == 'maxEmprunt'">
+      <p>Vous avez atteint votre limite de 3 emprunts.</p>
+      </div>
+      <div v-if="afficheur == 'empruntZeroLivre'">
+      <p>Il n'y a plus d'exemplaire de cet ouvrage disponible. Veuillez lancer une nouvelle recherche pour
+      effectuer une réservation.</p>
+      </div>
+      <div v-if="afficheur == 'maxReservation'">
+      <p>Le montant maximum de reservation pour cet ouvrage a été atteint.</p>
+      </div>
+      <div v-if="afficheur == 'empruntPasres'">
+      <p>Vous ne pouvez pas réserver un ouvrage que vous avez en cours d'emprunt.</p>
+      </div>
+      <div v-if="afficheur == 'resDejaEnCours'">
+      <p>Vous avez déjà une réservation en cours pour ce livre.</p>
+      </div>
+      <div v-if="afficheur == 'maxResParUser'">
+      <p>Vous avez déjà atteint votre maximum de 3 reservations.</p>
+      </div>
+      <div v-if="afficheur == 'livreDispo'">
+      <p>Il y a un livre disponible. Relancez la recherche et empruntez le.</p>
+      </div>
+      <div v-if="afficheur == 'confirmationEmprunt'">
+        <p> Veuillez confirmer votre emprunt:</p>
+        <md-button class="md-dense md-raised md-accent" @click="createLoan(titreT), minorOne(titreT)">CONFIRMER</md-button>
+      </div>
+      <div v-if="afficheur == 'confirmationReservation'">
+        <p>Veuiller confirmer votre réservartion:</p>
+        <md-button class="md-dense md-raised md-accent" @click="createUres(titreTT)">CONFIRMER</md-button>
+      </div>
+      <div v-if="afficheur == 'emprunté'">
         <span id="messloaned"> Vous avez emprunter <strong>{{ loan.nomLivre }}</strong> jusqu'au <strong>{{ loan.finPret }}</strong>.</span>
+      </div>
+      <div v-if="afficheur == 'réservé'">
+        <span id="messreserved"> Votre reservation de <strong>{{uRes.nomLivre}}</strong> est validé en date du {{uRes.dateCreation}}.</span>
+      </div>
+      <div v-if="afficheur == 'test1'">
+        <p><strong>TEST 1</strong></p>
+      </div>
+      <div v-if="afficheur == 'test2'">
+        <p><strong>TEST 2</strong></p>
       </div>
     </div>
   </div>
@@ -67,24 +110,24 @@ export default {
   props: ['user'],
   data () {
     return {
-      searched: false,
-      loaned: false,
+      afficheur: '',
       titre: '',
+      titreT: '',
+      titreTT: '',
       auteur: '',
-      ListBooks: [],
-      nomLivre: '',
       intcountloans: '',
-      loan: {}
+      intcountuRes: '',
+      loan: {},
+      uRes: {}
     }
   },
   methods: {
     /* eslint-disable */
     searchbooks () {
-      this.loaned = false
-      this.searched = false
+      this.afficheur = "chargement"
       axios.get('http://localhost:8282/book-service/searchBooks/?titre=' + this.titre + '&auteur=' + this.auteur)
         .then(response => {
-          this.searched = true
+          this.afficheur = "afficherLivres"
           this.ListBooks = response.data
           console.log('succes', response)
         }, (response) => {
@@ -92,11 +135,11 @@ export default {
         })
     },
     createLoan (title) {
+      this.afficheur = "chargement"
       axios.post('http://localhost:8282/loan-service/createLoan/?pseudoEmprunteur=' + this.user.pseudo + '&nomLivre=' + title)
         .then(response => {
           this.loan = response.data
-          this.searched = false
-          this.loaned = true
+          this.afficheur = "emprunté"
           console.log('succes', response)
         }, (response) => {
           console.log('erreur', response)
@@ -110,14 +153,104 @@ export default {
           console.log('erreur', response)
         })
     },
-      minorOne (id) {
-          axios.patch('http://localhost:8282/book-service/bookMinorOne/?id=' + id)
+      countuRes (nomUtilisateur) {
+          axios.get('http://localhost:8282/reservation-service//CountuResByUser/?nomUtilisateur=' + nomUtilisateur)
+              .then(response => {
+                  this.intcountuRes = response.data
+              }, (response) => {
+                  console.log('erreur', response)
+              })
+      },
+      minorOne (titre) {
+          axios.patch('http://localhost:8282/book-service/bookMinorOne/?titre=' + titre)
               .then(response => {
                   console.log('succes', response)
               }, (response) => {
                   console.log('erreur', response)
               })
       },
+      createUres(nomLivre){
+          this.afficheur = "chargement"
+          axios.post('http://localhost:8282/reservation-service/addRes/?nomUtil=' + this.user.pseudo + '&nomLivre=' + nomLivre)
+            .then(response => {
+                console.log('succes', response)
+                this.afficheur = "réservé"
+                this.uRes = response.data
+            }, (response) => {
+                console.log('erreur', response)
+            })
+      },
+      patcheFilAttNotEmpty(nomLivre){
+          axios.patch('http://localhost:8282/reservation-service/filAttNotEmpty/?nomLivre=' + nomLivre)
+              .then(response => {
+                  console.log('succes', response)
+              }, (response) => {
+                  console.log('erreur', response)
+              })
+      },
+      gestionEmprunt(NomLivre, nomUtil, bookQuantite){
+          axios.get('http://localhost:8282/loan-service/ListeLoanByTitreAndUser/?pseudo=' + nomUtil + '&NomLivre=' + NomLivre)
+              .then(response => {
+                  this.ListLoansTitreUser = response.data
+                  console.log('succes', response)
+                  axios.get('http://localhost:8282/loan-service/ListLoans/?pseudo=' + nomUtil)
+                      .then(response => {
+                          this.ListLoansUser = response.data
+                          console.log('succes', response)
+                          if (this.ListLoansTitreUser.length === 1) {
+                              this.afficheur = "unEmpruntParLivre"
+                          } else if (this.ListLoansUser.length >= 3) {
+                              this.afficheur = "maxEmprunt"
+                          } else if (bookQuantite < 1) {
+                              this.afficheur = "empruntZeroLivre"
+                          } else {
+                              this.afficheur = "confirmationEmprunt"
+                              this.titreT = NomLivre
+                          }
+                      })
+              })
+      },
+      gestionReservation(nomLivre, nomUtil, bookQuantite, bookQtMax){
+// fetch 1 liste emprunt par nomLivre et nomUtil
+          axios.get('http://localhost:8282/loan-service/ListeLoanByTitreAndUser/?pseudo=' + nomUtil + '&NomLivre=' + nomLivre)
+              .then(response => {
+                  this.ListLoansTitreUser = response.data
+                  console.log('succes1', response)
+                  // fetch2 liste uReservation par nomLivre et nomUtil
+                 axios.get('http://localhost:8282/reservation-service/listeResByNomlivreAndNomUtil/?nomLivre=' + nomLivre + '&nomUtil=' + nomUtil)
+                     .then(response => {
+                         this.listeResByNomlivreUtil = response.data
+                         console.log('succes2', response)
+                         // fetch3 liste uReservation par nomutil
+                       axios.get('http://localhost:8282/reservation-service/FileAttente/?nomUtil=' + nomUtil)
+                           .then(response => {
+                               this.listResUser = response.data
+                               console.log('succes3', response)
+                               // fetch4 liste uReservation par nomlivre
+                             axios.get('http://localhost:8282/reservation-service//listResNomLivre/?nomLivre=' + nomLivre)
+                                 .then(response => {
+                                    this.listeResNomlivre = response.data
+                                     console.log('succes4', response)
+                                     if(bookQuantite >= 1) {
+                                         this.afficheur = "livreDispo"
+                                     } else if(this.ListLoansTitreUser.length === 1){
+                                         this.afficheur = "empruntPasres"
+                                     } else if(this.listeResByNomlivreUtil.length === 1) {
+                                         this.afficheur = "resDejaEnCours"
+                                     } else if(this.listeResNomlivre.length >= (bookQtMax * 2)){
+                                         this.afficheur = "maxReservation"
+                                     } else if(this.listResUser.length === 3){
+                                         this.afficheur = "maxResParUser"
+                                     }
+                                     else {
+                                         this.afficheur = "confirmationReservation"
+                                         this.titreTT = nomLivre
+                                     }
+                                 })
+                           })
+                     })
+              })
+      }
   }
 }
 </script>

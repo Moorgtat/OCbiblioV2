@@ -25,7 +25,7 @@
             <md-input id="file" name="file" type="file" v-model="book.file" @change="onFileSelected"></md-input>
             <span class="md-helper-text">Image de la couverture.</span>
           </md-field>
-          <md-button class="md-raised md-default" @click="createbook">Créer</md-button>
+          <md-button class="md-raised md-default" @click="createbook(), createRes()">Créer</md-button>
         </div>
       </form>
       <div id="NewBook">
@@ -62,7 +62,7 @@
   </div>
 </template>
 
-<script>import axios from 'axios'
+<script> /* eslint-disable */import axios from 'axios'
 export default {
   name: 'BookCreate',
   data () {
@@ -94,6 +94,14 @@ export default {
         }).catch(e => {
           console.log('erreur', e)
         })
+    },
+    createRes () {
+      axios.post('http://localhost:8282/reservation-service/createRes/?nomLivre=' + this.book.titre)
+          .then(response => {
+            console.log(response.data)
+          }).catch(e => {
+            console.log('erreur', e)
+      })
     },
     retour () {
       this.book.titre = ''

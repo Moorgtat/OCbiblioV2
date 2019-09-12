@@ -11,7 +11,7 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:8080")
 @RepositoryRestResource
 public interface LoanRepository extends JpaRepository <Loan, Long> {
-
     List <Loan> findAllByPseudoEmprunteur(String pseudo);
     List <Loan> findAllByPseudoEmprunteurAndFinPretIsBefore(String pseudo, Date date);
+    List <Loan> findAllByPseudoEmprunteurAndNomLivre(String pseudo, String nomLivre);
 }
