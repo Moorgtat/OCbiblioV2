@@ -1,17 +1,14 @@
 # Projet 10 : Amèliorer OcBiblio
  Une version amélioré du projet Ocbiblio avec de nouvelles 
-features, correction d'un bug et mis en place de test.
+features, correction d'un bug et mis en place de test, le tout 
+intégré et ordonné aves le Tech-Lead via 3 tickets //GitHub.
 https://github.com/Moorgtat/OCbiblioV2.git
 
-# Features
-* Site Web Responsive 
-* Connexion utilisateur
-* Recherche de Livres Multicritères
-* Ajout de Livre / Dl Couvertures
-* Gestion de Prêt de Livre
-* Limite de Prêt de livre
-* Limite de Prolongation de Prêt
-* Simulation Remise Livres
+# New Features
+* Gestion de réservation
+* Relance Mail
+* Batch OcBiblio
+* Mis en place de Test pour reservation-service
  
 # Technologies utilisées
  Architecture MICROSERVICE. Projet basé autour de l'écosystème 
@@ -25,10 +22,11 @@ Vue.JS.
 * Material Design 
 * MySQL (WorkBench)
 * Axios
+* Junit && Postman
 
 # Installation
 Réaliser un gitclone du projet dans votre répertoire de travail à 
-partir de ce lien : "https://github.com/Moorgtat/OcBiblio.git". 
+partir de ce lien : "https://github.com/Moorgtat/OCbiblioV2.git". 
 
 L'importer dans IntelliJ Idea.
 
@@ -41,7 +39,7 @@ Modifier le fichier application.properties à la racine du projet:
 "spring.datasource.username=" => Entrez votre username 
 "spring.datasource.password=" => Entrez votre Mot de passe
 
-Démarrez chaque microservices ainsi que L'UI avec la commande 
+Démarrez chaque microservices puis L'UI avec la commande 
 "npm run dev".
 
 # Se connecter
@@ -51,5 +49,5 @@ Démarrez chaque microservices ainsi que L'UI avec la commande
 "user" dans la Bdd.
 
 # Auteur
-Mathieu Le Cardinal dans le cadre de sa formation developpeur JAVA 
+Mathieu Le Cardinal dans le cadre de sa formation DA JAVA 
 chez OpenClassroom.

@@ -28,13 +28,15 @@ public class Book {
     @Size(min = 1, max = 100)
     private String image;
     private int quantite;
+    private int quantiteMax;
 
-    public Book(@Size(min = 1, max = 50) String titre, @Size(min = 1, max = 250) String description, @Size(min = 1, max = 50) String auteur, @Size(min = 1, max = 100) String image, int quantite) {
+    public Book(@Size(min = 1, max = 50) String titre, @Size(min = 1, max = 250) String description, @Size(min = 1, max = 50) String auteur, @Size(min = 1, max = 100) String image, int quantite, int quantiteMax) {
         this.titre = titre;
         this.description = description;
         this.auteur = auteur;
         this.image = image;
         this.quantite = quantite;
+        this.quantiteMax = quantiteMax;
     }
 
     public Long getId() {
@@ -83,5 +85,13 @@ public class Book {
 
     public void setQuantite(int quantite) {
         this.quantite = quantite;
+    }
+
+    public int getQuantiteMax() {
+        return quantiteMax;
+    }
+
+    public void setQuantiteMax(int quantiteMax) {
+        this.quantiteMax = quantiteMax;
     }
 }
