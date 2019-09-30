@@ -27,6 +27,12 @@ public class LoanRestController {
         return countLoans;
     }
 
+    @GetMapping ("/listLoanByNomLivre/")
+    public List<Loan> listByNomLivre (@RequestParam(name = "NomLivre", defaultValue = "")String NomLivre){
+        List listbynomlivre = loanRepository.findAllByNomLivre(NomLivre);
+        return listbynomlivre;
+    }
+
     @RequestMapping("/ListLoans/")
     public List<Loan> ListLoans(@RequestParam(name = "pseudo", defaultValue = "") String pseudo) {
         return loanRepository.findAllByPseudoEmprunteur(pseudo);

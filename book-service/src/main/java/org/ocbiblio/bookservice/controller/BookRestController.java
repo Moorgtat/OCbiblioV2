@@ -26,12 +26,19 @@ public class BookRestController {
         return bookRepository.findByTitreIsContainingAndAuteurIsContaining(titre, auteur);
     }
 
+    @GetMapping("/getBookQuantity/")
+    public int bookQuantity(@RequestParam(name="titre", defaultValue = "")String titre){
+        Book book = bookRepository.findBookByTitre(titre);
+        int bookQuantity = book.getQuantite();
+        return bookQuantity;
+    }
+
     @PatchMapping("/bookPlusOne")
     Book bookplus(@RequestParam(name="titre", defaultValue = "")String titre) {
         Book book = bookRepository.findBookByTitre(titre);
         int quantiteActuel = book.getQuantite();
         if (quantiteActuel >= book.getQuantiteMax()) {
-            System.out.println("La bibliothèque ne contient que 2 exemplaires de chaque ouvrage");
+            System.out.println("La bibliothèque ne contient pas autant d'exemplaire de cet ouvrage");
         } else {
             book.setQuantite(quantiteActuel + 1);
         }

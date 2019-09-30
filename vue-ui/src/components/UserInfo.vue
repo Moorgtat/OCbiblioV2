@@ -7,7 +7,7 @@
       <md-button @click="listLoan(user.pseudo)">Mes emprunts</md-button>
       <md-button @click="affListAtt(user.pseudo)">Mes réservations</md-button>
       <md-button @click="listPastLoan(user.pseudo), listResAct(user.pseudo)">Afficher mes messages</md-button>
-      <div id="tableResContainer" v-if="afficheur == 'mesreservations'">
+      <div id="tableResContainer" v-if="afficheur === 'mesreservations'">
         <md-table id="tableRes">
           <md-table-row>
             <md-table-head>Titre</md-table-head>
@@ -18,19 +18,19 @@
           <md-table-row v-for="uReservation in ListuReservations" :key="uReservation.id">
             <md-table-cell>{{uReservation.nomLivre}} {{uReservation.id}}</md-table-cell>
             <md-table-cell>
-              <md-button>Calculer</md-button>
+              <md-button @click="calculer(uReservation.nomLivre, uReservation.id)">Calculer</md-button>
             </md-table-cell>
             <md-table-cell>
-              <md-button @click="annulerReservation(uReservation.id, uReservation.nomLivre)">Annuler</md-button>
+              <md-button @click="annulerReservation(uReservation.id, uReservation.nomLivre, user.mail)">Annuler</md-button>
             </md-table-cell>
             <md-table-cell>
-              <md-button v-if="uReservation.actif == false" disabled>Prendre</md-button>
-              <md-button v-else-if="uReservation.actif == true" @click="prendreReservation(uReservation.id, uReservation.nomLivre, user.pseudo)">Prendre</md-button>
+              <md-button v-if="uReservation.actif === false" disabled>Prendre</md-button>
+              <md-button v-else-if="uReservation.actif === true" @click="prendreReservation(uReservation.id, uReservation.nomLivre, user.pseudo)">Prendre</md-button>
             </md-table-cell>
           </md-table-row>
         </md-table>
       </div>
-      <div id="tableLoanContainer" v-if="afficheur == 'mesemprunts'">
+      <div id="tableLoanContainer" v-if="afficheur === 'mesemprunts'">
         <md-table id="tableLoan">
           <md-table-row>
             <md-table-head>Titre</md-table-head>
@@ -43,24 +43,28 @@
             <md-table-cell>{{loan.finPret}}</md-table-cell>
             <md-table-cell>
               <!--Ticket #2 regles de gestion coté FRONT-->
-              <md-button v-if="loan.authProlong == true" @click="prolongLoan(loan.id)">Prolonger</md-button>
-              <md-button v-if="loan.authProlong == false" class="md-accent" disabled>Prolonger</md-button>
+              <md-button v-if="loan.authProlong === true" @click="prolongLoan(loan.id)">Prolonger</md-button>
+              <md-button v-if="loan.authProlong === false" class="md-accent" disabled>Prolonger</md-button>
             </md-table-cell>
             <md-table-cell>
-              <md-button @click="rendreHandle(loan.id, loan.nomLivre)">Rendre</md-button>
+              <md-button @click="rendreHandle(loan.id, loan.nomLivre, user.mail)">Rendre</md-button>
             </md-table-cell>
           </md-table-row>
         </md-table>
       </div>
-      <div v-if="afficheur == 'prolongation'">
+      <div v-if="afficheur === 'estimation'">
+        <p>Vous êtes en position <strong>{{ this.placeFileAttente }}</strong> sur la liste d'attente. Votre réservation sera disponible
+          au plus tôt dans <strong>{{ this.estimation }}</strong> jours.</p>
+      </div>
+      <div v-if="afficheur === 'prolongation'">
         <p> Vous avez prolonger votre prêt du livre <strong>{{loan.nomLivre}}</strong>
           jusqu'au <strong>{{loan.finPret}}</strong>.</p>
       </div>
-      <div v-if="afficheur == 'rendu'">
+      <div v-if="afficheur === 'rendu'">
         <p> Nous avons bien reçu votre livre. Merci <strong>{{user.pseudo}}</strong>.</p>
       </div>
-      <div v-if="afficheur == 'mesmessages'">
-        <div v-if="ListPastLoans.length == 0 && listResAct.length == 0"><p>Vous n'avez pas de message.</p></div>
+      <div v-if="afficheur === 'mesmessages'">
+        <div v-if="ListPastLoans.length === 0 && listResAct.length == 0"><p>Vous n'avez pas de message.</p></div>
         <p v-for="loan in ListPastLoans" :key="loan.id"> <font-awesome-icon icon="bell" /> &nbsp; Vous devez rendre
           <span id="pastnomlivre"> <b> {{loan.nomLivre}} </b> </span> depuis le
           <span id="pastfinpret"> <b> {{loan.finPret}} </b> </span>.
@@ -68,17 +72,11 @@
         <p v-for="uReservation in listResActMess" :key="uReservation.id"> <font-awesome-icon icon="bell" /> Votre reservation
           de <b>{{uReservation.nomLivre}}</b> vous attends à la bibliothèque depuis le <b>{{ uReservation.dateActivation }}</b>.</p>
       </div>
-      <div v-if="afficheur == 'reservationannule'">
+      <div v-if="afficheur === 'reservationannule'">
         <p> <strong>{{user.pseudo}}</strong> nous te confirmons que ta réservation a bien été annulée.</p>
       </div>
-      <div v-if="afficheur == 'reservationprise'">
+      <div v-if="afficheur === 'reservationprise'">
         <p> <strong>{{user.pseudo}}</strong> tu as bien pris ta réservation.</p>
-      </div>
-      <div v-if="afficheur == 'test1'">
-        <p> <strong> TEST 1</strong></p>
-      </div>
-      <div v-if="afficheur == 'test2'">
-        <p> <strong> TEST 2</strong></p>
       </div>
     </div>
 </template>
@@ -88,7 +86,10 @@ export default {name: 'UserInfo',
   props: ['user'],
   data () {
     return {
+      act: false,
       loan: {},
+      estimation: null,
+      placeFileAttente: null,
       afficheur: ''
     }
   },
@@ -148,57 +149,86 @@ export default {name: 'UserInfo',
                 console.log('erreur', response)
             })
     },
-    annulerReservation(idRes, nomLivre){
+    annulerReservation(idRes, nomLivre, userMail){
         this.afficheur = "chargement"
-        axios.get("http://localhost:8282/reservation-service/DeleteRes/?id=" + idRes)
+        axios.get('http://localhost:8282/reservation-service/listeUresByNLAndNA/?nomLivre=' + nomLivre)
             .then(response => {
-                this.afficheur = "reservationannule"
-                console.log('succes1', response)
-                // getold true: nothing false: bookplusone
-                    axios.patch("http://localhost:8282/reservation-service/getOldUres/?nomLivre=" + nomLivre)
-                        .then(response => {
-                            console.log('succes2', response)
-                        }, (response) => {
-                            console.log('error2', response)
-                            //bookplusone
-                            axios.patch('http://localhost:8282/book-service/bookPlusOne/?titre=' + nomLivre)
-                                .then(response => {
-                                    console.log('succes3', response)
-                                }, (response) => {
-                                    console.log('error3', response)
-                            })
-                        })
-            }, (response) => {
-                console.log('erreur1', response)
+                console.log('succes', response)
+                this.listresByNLandNA = response.data
+             axios.get('http://localhost:8282/reservation-service/isResActiv/?id=' + idRes)
+                 .then(response => {
+                   console.log('succes2', response)
+                     this.act = response.data
+                     //conditions
+                     if(this.listresByNLandNA.length === 0 && this.act === false) {
+                         axios.get("http://localhost:8282/reservation-service/DeleteRes/?id=" + idRes)
+                             .then(response =>{
+                                 this.afficheur = "reservationannule"
+                                 console.log('succes2', response)
+                             })
+                     }
+                     if(this.listresByNLandNA.length === 0 && this.act === true ){
+                         axios.get("http://localhost:8282/reservation-service/DeleteRes/?id=" + idRes)
+                             .then(response =>{
+                                 console.log('succes3', response)
+                                 //bookplusone
+                                 axios.patch('http://localhost:8282/book-service/bookPlusOne/?titre=' + nomLivre)
+                                     .then(response => {
+                                         this.afficheur = "reservationannule"
+                                         console.log('succes3', response)
+                                     })
+                             })
+                     }
+                     if(this.listresByNLandNA.length > 0 && this.act === false) {
+                         axios.get("http://localhost:8282/reservation-service/DeleteRes/?id=" + idRes)
+                             .then(response =>{
+                                 this.afficheur = "reservationannule"
+                                 console.log('succes2', response)
+                             })
+                     }
+                     if(this.listresByNLandNA.length > 0 && this.act === true ){
+                         axios.get("http://localhost:8282/reservation-service/DeleteRes/?id=" + idRes)
+                             .then(response =>{
+                                 console.log('succes3', response)
+                                 // getold true: nothing false: bookplusone
+                                 axios.patch("http://localhost:8282/reservation-service/getOldUres/?nomLivre=" + nomLivre + "&userMail=" + userMail)
+                                     .then(response => {
+                                         this.afficheur = "reservationannule"
+                                         console.log('succes2', response)
+                                     })
+                             })
+                     }
+                 })
             })
     },
-    rendreHandle(idLoan, nomLivre){
+    rendreHandle(idLoan, nomLivre, userMail){
         this.afficheur = "chargement"
-        axios.patch("http://localhost:8282/reservation-service/getOldUres/?nomLivre=" + nomLivre)
+        axios.get('http://localhost:8282/reservation-service/listResNomLivre/?nomLivre=' + nomLivre)
             .then(response => {
-                console.log("succesorigin", response)
-                axios.get('http://localhost:8282/loan-service/DeleteLoan/?id=' + idLoan)
-                    .then(response => {
-                        this.afficheur = "rendu"
-                        console.log('succes1', response)
-                    }, (response) => {
-                        console.log('erreur1', response)
-                    })
-            }, (response) =>{
-                axios.get('http://localhost:8282/loan-service/DeleteLoan/?id=' + idLoan)
-                    .then(response => {
-                        this.afficheur = "rendu"
-                        console.log('succes3', response)
-                        axios.patch('http://localhost:8282/book-service/bookPlusOne/?titre=' + nomLivre)
-                            .then(response => {
-                                this.afficheur = "rendu"
-                                console.log('succes2', response)
-                            }, (response) => {
-                                console.log('erreur2', response)
-                            })
-                    }, (response) => {
-                        console.log('erreur3', response)
-                    })
+                console.log('succes', response)
+                this.listUresByNomLivre = response.data
+                  if(this.listUresByNomLivre.length === 0){
+                     axios.get('http://localhost:8282/loan-service//DeleteLoan/?id=' + idLoan)
+                         .then(response => {
+                             console.log('succes2', response)
+                             axios.patch('http://localhost:8282/book-service/bookPlusOne/?titre=' + nomLivre)
+                                 .then(response => {
+                                     console.log('succes3', response)
+                                     this.afficheur = "rendu"
+                                 })
+                         })
+                  }
+                  if(this.listUresByNomLivre.length > 0){
+                     axios.patch('http://localhost:8282/reservation-service/getOldUres/?nomLivre=' + nomLivre + '&userMail=' + userMail)
+                         .then(response =>{
+                             console.log('succes4', response)
+                             axios.get('http://localhost:8282/loan-service//DeleteLoan/?id=' + idLoan)
+                                 .then(response => {
+                                     console.log('succes5', response)
+                                     this.afficheur = 'rendu'
+                                 })
+                         })
+                  }
             })
     },
     prendreReservation(idRes, nomLivre, nomUtil){
@@ -216,7 +246,23 @@ export default {name: 'UserInfo',
             }, (response) => {
                 console.log('erreur', response)
             })
-    }
+    },
+      calculer(nomLivre, id){
+          this.afficheur = "chargement"
+          axios.get('http://localhost:8282/reservation-service/getListOlderRes/?nomLivre=' + nomLivre + '&id=' + id)
+              .then(response => {
+                  console.log('succes', response)
+                  this.listOlderRes = response.data
+                   axios.get('http://localhost:8282/loan-service/listLoanByNomLivre/?NomLivre=' + nomLivre)
+                       .then(response =>{
+                           console.log('succes2', response)
+                           this.listLoansbyNomLivre = response.data
+                           this.placeFileAttente = this.listOlderRes.length + 1
+                           this.estimation = this.listOlderRes.length * 3 + this.listLoansbyNomLivre.length * 3
+                           this.afficheur = "estimation"
+                       })
+              })
+      }
   }
 }
 

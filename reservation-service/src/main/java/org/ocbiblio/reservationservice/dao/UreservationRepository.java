@@ -17,4 +17,7 @@ public interface UreservationRepository extends JpaRepository<uReservation, Long
     List <uReservation> findAllByNomLivreAndNomUtilisateur(@Param("nomLivre")String nomLivre, @Param("nomUtilisateur")String nomUtilisateur);
     uReservation findFirstByNomLivreAndActifIsFalseOrderByDateCreationAsc(@Param("nomLivre")String nomLivre);
     List <uReservation> findAllByNomUtilisateur(@Param("nomUtilisateur") String nomUtilidateur);
+    List <uReservation> findAllByNomLivreAndIdIsLessThan(@Param("nomLivre")String nomLivre, @Param("id")long id);
+    List <uReservation> findAllByNomLivreAndActifFalse(@Param("nomLivre")String nomLivre);
+    uReservation findFirstByActifTrueOrderByIdAsc();
 }
