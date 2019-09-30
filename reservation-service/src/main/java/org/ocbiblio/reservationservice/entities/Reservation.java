@@ -46,13 +46,6 @@ public class Reservation {
         this.nomLivre = nomLivre;
     }
 
-    public Collection<uReservation> getFileReservation() {
-        return fileReservation;
-    }
-
-    public void setFileReservation(Collection<uReservation> fileReservation) {
-        this.fileReservation = fileReservation;
-    }
 
     public Boolean getFileResEmpty() {
         return isFileResEmpty;
